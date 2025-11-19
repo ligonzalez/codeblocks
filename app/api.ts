@@ -16,7 +16,7 @@ export async function updateBlock(formData: FormData) {
     where: { id: Number(id) },
     data: { title, code },
   });
-  redirect("/");
+  redirect(`/blocks/${block.id}/detail`);
 }
 
 export async function deleteBlock(formData: FormData) {
