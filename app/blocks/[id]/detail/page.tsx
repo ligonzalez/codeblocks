@@ -1,5 +1,6 @@
 import { deleteBlock } from "@/app/api";
 import { prisma } from "@/database";
+import { cookies } from "next/headers";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
@@ -11,6 +12,55 @@ export default async function DetailBlock({ params }: { params: { id: string } }
     });
 
     if (!block) return notFound();
+    
+    const cookieStore = cookies();
+    const userCookie = (await cookieStore).get("user_id");
+    if (!userCookie) {
+        return (
+            <main className="min-h-screen bg-gray-50 p-8">
+                <div className="max-w-2xl mx-auto">
+                    <header className="flex items-center justify-between mb-8">
+                        <h1 className="text-3xl font-semibold text-gray-800">Code Blocks</h1>
+
+                        <Link
+                            href="/login"
+                            className="inline-block px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition"
+                        >
+                            Log In
+                        </Link>
+                    </header>
+                    <p className="text-gray-500 italic text-center">
+                        Please log in to view your code blocks.
+                    </p>
+                </div>
+            </main>
+        );
+    }
+    const findUser = await prisma.user.findFirst({
+        where: {
+            id: Number((await cookies()).get('user_id')?.value)
+        }
+    });
+    if (!findUser) {
+        return (
+            <main className="min-h-screen bg-gray-50 p-8">
+                <div className="max-w-2xl mx-auto">
+                    <header className="flex items-center justify-between mb-8">
+                        <h1 className="text-3xl font-semibold text-gray-800">Code Blocks</h1>
+                        <Link
+                            href="/login"
+                            className="inline-block px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition"
+                        >
+                            Log In
+                        </Link>
+                    </header>
+                    <p className="text-gray-500 italic text-center">
+                        Please log in to view your code blocks.
+                    </p>
+                </div>
+            </main>
+        );
+    }
     return (
         <main className="min-h-screen bg-gray-50 p-8 justify-center">
             <form action={deleteBlock}>
@@ -25,6 +75,9 @@ export default async function DetailBlock({ params }: { params: { id: string } }
                         <Link className="inline-block px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition"
                             href={`/blocks/${block.id}/edit`}>Edit</Link>
                     </header>
+                </div>
+                <div className="mb-6">
+                    <h2 className="text-2xl font-semibold text-gray-800">{`Welcome:  ${findUser?.username} !!`}</h2>
                 </div>
                 <div className="place-items-center h-screen">
                     <div className="mb-6 w-1/2">

@@ -12,4 +12,19 @@ model Block {
   id    Int    @id @default(autoincrement())
   title String
   code  String
+  userId Int 
+  user User @relation(fields: [userId], references: [id])
+}
+
+enum Role{
+  ADMIN
+  USER
+}
+
+model User{
+  id        Int @id @default(autoincrement())
+  username  String
+  password  String
+  role      Role @default(USER)
+  blocks    Block[]
 }
